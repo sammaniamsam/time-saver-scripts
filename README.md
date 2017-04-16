@@ -27,3 +27,4 @@ Example | Explanation
 _git clone https://github.com/sammaniamsam/time-saver-scripts.git_
 
 # License
+Licensed under the MIT license. See License.md
