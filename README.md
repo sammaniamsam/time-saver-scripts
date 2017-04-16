@@ -14,6 +14,7 @@ you create custom directories to store the media that was copied
 from your external device.
 
 # Code Examples
+Example | Explanation
 ----------------- | -----------------
 ./get_media.sh -p | pics only <command> -p
 ./get_media.sh -f | footage only <command> -f
