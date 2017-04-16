@@ -24,9 +24,9 @@ Example | Explanation
 :movie_camera: :movie_camera: and lots of :camera: :camera:
 
 # Installation
-> First, make sure you have the **Xcode Command Line Tools** installed.
-> If not then follow this [tutorial](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/)
-> _git clone https://github.com/sammaniamsam/time-saver-scripts.git_
+- First, make sure you have the **Xcode Command Line Tools** installed.
+- If not then follow this [tutorial](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/)
+- _git clone https://github.com/sammaniamsam/time-saver-scripts.git_
 
 # License
 Licensed under the MIT license. See License.md
