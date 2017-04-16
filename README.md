@@ -16,14 +16,14 @@ from your external device.
 # Code Examples
 Example | Explanation
 ----------------- | -----------------
-./get_media.sh -p | pics only <command> -p
-./get_media.sh -f | footage only <command> -f
-./get_media.sh -fp | pics and footage <command> -pf OR -fp
+./get_media.sh -p | pics only
+./get_media.sh -f | footage only
+./get_media.sh -fp | pics and footage -pf OR -fp
 
 # Motivation
+Add motivation
 
 # Installation
-
-# Installation
+_git clone https://github.com/sammaniamsam/time-saver-scripts.git_
 
 # License
