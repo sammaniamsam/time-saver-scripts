@@ -1,12 +1,12 @@
 -----------------
-#Synopsis
+# Synopsis
 -----------------
 >
 > ------------------------------------------------------------------
-> ##The scripts in time-saver-scripts are written for Mac OSX Terminal
+> ## The scripts in time-saver-scripts are written for Mac OSX Terminal
 > ------------------------------------------------------------------
 
->	###get_media.sh
+>	### get_media.sh
 
 >	This script copies any photos and/or videos from an external
 >	device and saves them in two separate directories
