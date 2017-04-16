@@ -34,35 +34,27 @@ print_command_arg_options() {
 
 #--------------------------------------
 #Get volume name to extract footage from
+#Validate that the user selected volume exists
+#Get photos and/or footage from volume
 #
 # Arguments:
-#   volume_name
+#   command_options -[pf]
 # Returns:
 #   None
 #--------------------------------------
 
-get_user_selected_volume() {
+execute_media_extraction() {
+	local cmd_option=$1; local i=0; local volumes; local vol; local vol_nm
 	printf "\n****************************************"
 	printf "\nSELECT WHICH VOLUME TO GET MEDIA FROM: \n"
-	printf "Volumes:  "; ls /Volumes/
-	printf "SELECTED VOLUME: " ; read $1
+	while read line; do volumes[ $i ]="$line"; (( i++ )); done < <(ls /Volumes/)
+	i=1; for elm in "${volumes[@]}"; do printf "\n $i: $elm"; (( i++ )); done
+	printf "\n\nSELECT VOLUME BY NUMBER (1, 2, ...): " ; read vol; (( i-- ))
+	while [ $vol -lt 1 ] || [ $vol -gt $i ] ; do
+		printf "INVALID SELECTION! RE-SELECT VOLUME: " ; read vol
+	done; (( vol-- )); vol_nm=${volumes[ $vol ]}
 	printf "****************************************\n"
-}
-
-#--------------------------------------
-#Validate that the user selected volume exists
-#
-# Arguments:
-#   volume_name
-# Returns:
-#   None
-#--------------------------------------
-
-check_if_valid_volume() {
-	while [ $(find "/Volumes" -maxdepth 1 -name "$1" | wc -l) -eq 0 ] ; do
-		printf "RE-ENTER SELECTED VOLUME: " ; read volume_name
-		set -- "$volume_name"
-	done
+	execute_command_option $cmd_option "$vol_nm"
 }
 
 #--------------------------------------
@@ -76,10 +68,10 @@ check_if_valid_volume() {
 
 execute_command_option() {
 	case "$1" in
-		-f) extract_footage $2 ;;
-		-p) extract_pictures $2 ;;
-		-*) extract_pictures $2
-			extract_footage $2
+		-f) extract_footage "$2" ;;
+		-p) extract_pictures "$2" ;;
+		-*) extract_pictures "$2"
+			extract_footage "$2"
 	esac
 }
 
@@ -95,8 +87,8 @@ execute_command_option() {
 extract_footage() {
 	local footage_file_formats="mov|MOV|mp4|MP4"
 	create_media_directory "Footage"
-	create_directory_for_media $1 "Footage" $footage_file_formats
-	prompt_user_about_deleting_media $1 "Footage" $footage_file_formats
+	create_directory_for_media "$1" "Footage" $footage_file_formats
+	prompt_user_about_deleting_media "$1" "Footage" $footage_file_formats
 }
 
 #--------------------------------------
@@ -111,8 +103,8 @@ extract_footage() {
 extract_pictures() {
 	local pic_file_formats="jpg|JPG|jpeg|JPEG|png|PNG"
 	create_media_directory "Pictures"
-	create_directory_for_media $1 "Pictures" $pic_file_formats
-	prompt_user_about_deleting_media $1 "Pictures" $pic_file_formats
+	create_directory_for_media "$1" "Pictures" $pic_file_formats
+	prompt_user_about_deleting_media "$1" "Pictures" $pic_file_formats
 }
 
 #--------------------------------------
@@ -144,12 +136,12 @@ create_media_directory() {
 create_directory_for_media() {
 	printf "\n****************************************"
 	printf "\nSELECT NAME FOR NEW $2 DIRECTORY\n"
-	local dir_nm; printf "DIRECTORY NAME: "; read dir_nm
+	local dir_nm ; printf "DIRECTORY NAME: " ; read dir_nm
 	while [ $(find "$HOME/$2/" -maxdepth 1 -name "$dir_nm" | wc -l) -gt 0 ] ; do
 		printf "DIRECTORY EXISTS! RE-ENTER DIRECTORY NAME: " ; read dir_nm
 	done
 	mkdir "$HOME/$2/$dir_nm"
-	copy_media_to_user_created_directory $1 $2 $3
+	copy_media_to_user_created_directory "$1" $2 $3
 	printf "****************************************\n"
 }
 
@@ -182,11 +174,11 @@ prompt_user_about_deleting_media() {
 	printf "\n****************************************"
 	printf "\nREMOVE ALL $2 FROM VOLUME {Y or N} ?: "; read answer
 	while [[ $answer != [YyNn] ]] ; do
-		printf "REMOVE ALL $2 FROM VOLUME?: "; read answer
+		printf "REMOVE ALL $2 FROM VOLUME?: " ; read answer
 	done
 	if [[ $answer == [Yy] ]]
 	then
-		delete_media $1 $2 $3
+		delete_media "$1" $2 $3
 	fi
 	printf "****************************************\n"
 }
@@ -219,10 +211,7 @@ main() {
 	if [ $# -eq 1 ];
 	then isValidArg="^-(p|f|fp|pf){1}$"
 		if [[ $1 =~ $isValidArg ]];
-		then local volume_name
-			get_user_selected_volume $volume_name
-			check_if_valid_volume $volume_name
-			execute_command_option $1 $volume_name
+		then execute_media_extraction $1
 		else print_error_message "INVALID ARGUMENTS"
 		fi
 	else print_error_message "INCORRECT NUMBER OF ARGUMENTS"
