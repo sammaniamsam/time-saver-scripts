@@ -6,7 +6,7 @@
 
 This script copies any photos and/or videos from an external
 device and saves them in two separate directories
-,**/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage**,
+( **/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage** )
 in your home directory.
 
 Within **/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage**,
