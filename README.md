@@ -4,14 +4,12 @@
 
 ### get_media.sh
 
-This script copies any photos and/or videos from an external
-device and saves them in two separate directories
-( **/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage** )
-in your home directory.
-
-Within **/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage**,
-you create custom directories to store the media that was copied
-from your external device.
+- Copies any photos and/or videos from an external device
+- Creates **Pictures** directory and/or **Footage** directory:
+  - **/Users/<user_name>/Pictures**
+  - **/Users/<user_name>/Footage**
+- Within the **Pictures** directory and/or **Footage** directory:
+  - You create a custom directory to store the copied media
 
 # Code Examples
 Example | Explanation
