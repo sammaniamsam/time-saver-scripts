@@ -6,10 +6,10 @@
 
 This script copies any photos and/or videos from an external
 device and saves them in two separate directories
-(**/Users/<user name>/Pictures** and **/Users/<user name>/Footage**)
+(**/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage**)
 in your home directory.
 
-Within **/Users/<user name>/Pictures** and **/Users/<user name>/Footage**,
+Within **/Users/<user_name>/Pictures** and **/Users/<user_name>/Footage**,
 you create custom directories to store the media that was copied
 from your external device.
 
