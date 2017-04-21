@@ -14,6 +14,7 @@
 # Code Examples
 Example | Explanation
 ----------------- | -----------------
+./get_media.sh **-a** | pics and footage
 ./get_media.sh **-p** | pics only
 ./get_media.sh **-f** | footage only
 ./get_media.sh **-fp** | pics and footage **-pf** OR **-fp**

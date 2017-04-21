@@ -61,18 +61,61 @@ execute_media_extraction() {
 #Executes appropriate command option
 #
 # Arguments:
-#   command_options -[pf]
+#   command_options -[pf], volume_name
 # Returns:
 #   None
 #--------------------------------------
 
 execute_command_option() {
 	case "$1" in
+		-a) auto_extract "$2" ;;
 		-f) extract_footage "$2" ;;
 		-p) extract_pictures "$2" ;;
 		-*) extract_pictures "$2"
 			extract_footage "$2"
 	esac
+}
+
+#--------------------------------------
+#Automatically extract media from selected
+#volume
+#
+# Arguments:
+#   volume_name
+# Returns:
+#   None
+#--------------------------------------
+
+auto_extract() {
+	local footage_file_formats="mov|MOV|mp4|MP4"
+	local pic_file_formats="jpg|JPG|jpeg|JPEG|png|PNG"
+	create_media_directory "Pictures"
+	create_media_directory "Footage"
+	create_time_stamp_directory_for_media "$1" "Pictures" $pic_file_formats
+	create_time_stamp_directory_for_media "$1" "Footage" $footage_file_formats
+	printf "\n****************************************\n"
+	printf "REMOVING ALL MEDIA FROM VOLUME\n"
+	delete_media "$1" "Pictures" $pic_file_formats
+	delete_media "$1" "Footage" $footage_file_formats
+	printf "\n****************************************\n\n"
+}
+
+#--------------------------------------
+#Creates subdirectory in media directory
+#named mm-dd-yy and copies media to it
+#
+# Arguments:
+#   volume_name, media_directory, file_extension_filters
+# Returns:
+#   None
+#--------------------------------------
+
+create_time_stamp_directory_for_media() {
+	local stamp=$(date "+%m-%d-%y")
+	if [ $(find "$HOME/$2/" -maxdepth 1 -name "$stamp" | wc -l) -eq 0 ];
+	then mkdir "$HOME/$2/$stamp"
+	fi
+	copy_media_to_directory "$1" "$2" "$stamp" "$3"
 }
 
 #--------------------------------------
@@ -141,7 +184,7 @@ create_directory_for_media() {
 		printf "DIRECTORY EXISTS! RE-ENTER DIRECTORY NAME: " ; read dir_nm
 	done
 	mkdir "$HOME/$2/$dir_nm"
-	copy_media_to_user_created_directory "$1" $2 $3
+	copy_media_to_directory "$1" "$2" "$dir_nm" "$3"
 	printf "****************************************\n"
 }
 
@@ -149,14 +192,14 @@ create_directory_for_media() {
 #Copy all media to new user created directory
 #
 # Arguments:
-#   volume_name, media_directory, file_extension_filters
+#   volume_name, media_directory, sub_directory, file_extension_filters
 # Returns:
 #   None
 #--------------------------------------
 
-copy_media_to_user_created_directory() {
+copy_media_to_directory() {
 	printf "COPYING $2...\n"
-	find -E "/Volumes/$1" -iregex ".*\.($3)" -exec cp "{}" "$HOME/$2/$dir_nm" \;
+	find -E "/Volumes/$1" -iregex ".*\.($4)" -exec cp "{}" "$HOME/$2/$3" \;
 }
 
 #--------------------------------------
@@ -209,7 +252,7 @@ delete_media() {
 
 main() {
 	if [ $# -eq 1 ];
-	then isValidArg="^-(p|f|fp|pf){1}$"
+	then isValidArg="^-(a|p|f|fp|pf){1}$"
 		if [[ $1 =~ $isValidArg ]];
 		then execute_media_extraction $1
 		else print_error_message "INVALID ARGUMENTS"
