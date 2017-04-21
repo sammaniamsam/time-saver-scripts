@@ -21,7 +21,7 @@ Example | Explanation
 ./get_media.sh **-f** | footage only
 ./get_media.sh **-fp** | pics and footage **-pf** OR **-fp**
 
-##Further Explanation
+## Further Explanation
 
 - Auto (-a)
   - If not created, creates **$HOME/Pictures** and **$HOME/Footage**
