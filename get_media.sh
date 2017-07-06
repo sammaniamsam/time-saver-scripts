@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #--------------------------------------
-#Print specific error message and
+#Print error message and
 #display propper command usage
 #
 # Arguments:
@@ -13,23 +13,8 @@
 print_error_message() {
 	printf "\n****************************************\n"
 	printf "$1\n"
-	print_command_arg_options
+	printf "CORRECT USAGE: ./get_media.sh"
 	printf "\n****************************************\n\n"
-}
-
-#--------------------------------------
-#Print correct command usage
-#
-# Arguments:
-#   None
-# Returns:
-#   None
-#--------------------------------------
-
-print_command_arg_options() {
-	printf "pics only <command> -p\n"
-	printf "footage only <command> -f\n"
-	printf "pics and footage <command> -pf OR -fp"
 }
 
 #--------------------------------------
@@ -44,7 +29,7 @@ print_command_arg_options() {
 #--------------------------------------
 
 execute_media_extraction() {
-	local cmd_option=$1; local i=0; local volumes; local vol; local vol_nm
+	local i=0; local volumes; local vol; local vol_nm
 	printf "\n****************************************"
 	printf "\nSELECT WHICH VOLUME TO GET MEDIA FROM: \n"
 	while read line; do volumes[ $i ]="$line"; (( i++ )); done < <(ls /Volumes/)
@@ -53,31 +38,12 @@ execute_media_extraction() {
 	while [ $vol -lt 1 ] || [ $vol -gt $i ] ; do
 		printf "INVALID SELECTION! RE-SELECT VOLUME: " ; read vol
 	done; (( vol-- )); vol_nm=${volumes[ $vol ]}
-	printf "****************************************\n"
-	execute_command_option $cmd_option "$vol_nm"
+	printf "****************************************\n\n"
+	extract_media "$vol_nm"
 }
 
 #--------------------------------------
-#Executes appropriate command option
-#
-# Arguments:
-#   command_options -[pf], volume_name
-# Returns:
-#   None
-#--------------------------------------
-
-execute_command_option() {
-	case "$1" in
-		-a) auto_extract "$2" ;;
-		-f) extract_footage "$2" ;;
-		-p) extract_pictures "$2" ;;
-		-*) extract_pictures "$2"
-			extract_footage "$2"
-	esac
-}
-
-#--------------------------------------
-#Automatically extract media from selected
+#Automatically extracts media from selected
 #volume
 #
 # Arguments:
@@ -86,106 +52,46 @@ execute_command_option() {
 #   None
 #--------------------------------------
 
-auto_extract() {
-	local footage_file_formats="mov|MOV|mp4|MP4"
-	local pic_file_formats="jpg|JPG|jpeg|JPEG|png|PNG"
-	create_media_directory "Pictures"
-	create_media_directory "Footage"
-	create_time_stamp_directory_for_media "$1" "Pictures" $pic_file_formats
-	create_time_stamp_directory_for_media "$1" "Footage" $footage_file_formats
-	printf "\n****************************************\n"
-	printf "REMOVING ALL MEDIA FROM VOLUME\n"
-	delete_media "$1" "Pictures" $pic_file_formats
-	delete_media "$1" "Footage" $footage_file_formats
-	printf "\n****************************************\n\n"
+extract_media() {
+	local vid_formats="mov|MOV|mp4|MP4"
+	local pic_formats="jpg|JPG|jpeg|JPEG|png|PNG"
+	create_directories
+	copy_media_to_directory "$1" "Media" "Pics" $pic_formats
+	copy_media_to_directory "$1" "Media" "Videos" $vid_formats
+	prompt_user_about_deleting_media "$1" "Pics" $pic_formats
+	prompt_user_about_deleting_media "$1" "Videos" $vid_formats
 }
 
 #--------------------------------------
-#Creates subdirectory in media directory
-#named mm-dd-yy and copies media to it
+#Creates directory structure
 #
 # Arguments:
-#   volume_name, media_directory, file_extension_filters
+#   None
 # Returns:
 #   None
 #--------------------------------------
 
-create_time_stamp_directory_for_media() {
+create_directories() {
 	local stamp=$(date "+%m-%d-%y")
-	if [ $(find "$HOME/$2/" -maxdepth 1 -name "$stamp" | wc -l) -eq 0 ];
-	then mkdir "$HOME/$2/$stamp"
+	create_directory "Media"
+	create_directory "Media/$stamp"
+	create_directory "Media/$stamp/Pics"
+	create_directory "Media/$stamp/Videos"
+}
+
+#--------------------------------------
+#Creates a directory in home directory
+#
+# Arguments:
+#   directory
+# Returns:
+#   None
+#--------------------------------------
+
+create_directory() {
+	if [ ! -d "$HOME/$1" ]
+	then mkdir $HOME/"$1"
 	fi
-	copy_media_to_directory "$1" "$2" "$stamp" "$3"
-}
-
-#--------------------------------------
-#Executes appropriate footage methods
-#
-# Arguments:
-#   volume_name
-# Returns:
-#   None
-#--------------------------------------
-
-extract_footage() {
-	local footage_file_formats="mov|MOV|mp4|MP4"
-	create_media_directory "Footage"
-	create_directory_for_media "$1" "Footage" $footage_file_formats
-	prompt_user_about_deleting_media "$1" "Footage" $footage_file_formats
-}
-
-#--------------------------------------
-#Executes appropriate picture methods
-#
-# Arguments:
-#   volume_name
-# Returns:
-#   None
-#--------------------------------------
-
-extract_pictures() {
-	local pic_file_formats="jpg|JPG|jpeg|JPEG|png|PNG"
-	create_media_directory "Pictures"
-	create_directory_for_media "$1" "Pictures" $pic_file_formats
-	prompt_user_about_deleting_media "$1" "Pictures" $pic_file_formats
-}
-
-#--------------------------------------
-#Create a media directory in home directory
-#
-# Arguments:
-#   media_directory
-# Returns:
-#   None
-#--------------------------------------
-
-create_media_directory() {
-	if [ $(find $HOME -maxdepth 1 -name "$1" | wc -l) -eq 0 ]
-	then
-		mkdir $HOME/"$1"
-	fi
-}
-
-#--------------------------------------
-#Get user to create a directory in
-#which to store their media
-#
-# Arguments:
-#   volume_name, media_directory, file_extension_filters
-# Returns:
-#   None
-#--------------------------------------
-
-create_directory_for_media() {
-	printf "\n****************************************"
-	printf "\nSELECT NAME FOR NEW $2 DIRECTORY\n"
-	local dir_nm ; printf "DIRECTORY NAME: " ; read dir_nm
-	while [ $(find "$HOME/$2/" -maxdepth 1 -name "$dir_nm" | wc -l) -gt 0 ] ; do
-		printf "DIRECTORY EXISTS! RE-ENTER DIRECTORY NAME: " ; read dir_nm
-	done
-	mkdir "$HOME/$2/$dir_nm"
-	copy_media_to_directory "$1" "$2" "$dir_nm" "$3"
-	printf "****************************************\n"
 }
 
 #--------------------------------------
@@ -198,8 +104,9 @@ create_directory_for_media() {
 #--------------------------------------
 
 copy_media_to_directory() {
-	printf "COPYING $2...\n"
-	find -E "/Volumes/$1" -iregex ".*\.($4)" -exec cp "{}" "$HOME/$2/$3" \;
+	local ts=$(date "+%m-%d-%y")
+	printf "COPYING $3...\n"
+	find -E "/Volumes/$1" -iregex ".*\.($4)" -exec cp "{}" "$HOME/$2/$ts/$3" \;
 }
 
 #--------------------------------------
@@ -241,8 +148,8 @@ delete_media() {
 }
 
 #--------------------------------------
-#Validate get_media command options and
-#invoke appropriate methods
+#Validate get_media command entered
+#properly
 #
 # Arguments:
 #   command_options -[pf]
@@ -251,12 +158,8 @@ delete_media() {
 #--------------------------------------
 
 main() {
-	if [ $# -eq 1 ];
-	then isValidArg="^-(a|p|f|fp|pf){1}$"
-		if [[ $1 =~ $isValidArg ]];
-		then execute_media_extraction $1
-		else print_error_message "INVALID ARGUMENTS"
-		fi
+	if [ $# -eq 0 ];
+	then execute_media_extraction
 	else print_error_message "INCORRECT NUMBER OF ARGUMENTS"
 	fi
 }
